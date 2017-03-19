@@ -5,6 +5,6 @@ The game draws some objects on screen and the user is supposed to interact with 
 - line segments - for simple strokes (e.g, hatching with a stylus) (i.e., hold left button and follow the line from point A to point B)
 - beziere curve - for precise contour drawing (i.e., hold left button and follow a nontrivial curve)
 
-Graphics design is clean "modern" vector graphics (black/green), with smooth transitions.
+Graphics design is clean "modern" vector graphics (black/green), with smooth transitions. It has no levels - its just one endless room. Its very relaxing and also sort of catchy.
 
 Please do NOT use this as an example of my code style. This project is stitched out of another project, which means that some things are pretty inconsistent. Also it was never supposed to be cleanly written.
