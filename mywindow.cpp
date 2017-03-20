@@ -3,18 +3,18 @@
 
 MyWindow::MyWindow()
 {
-	DArea area;
-	this->add(area);
-    //this->signal_key_press_event().connect(sigc::mem_fun(area, &DArea::KeyPress), false);
-	this->show_all();
+  DArea area;
+  this->add(area);
+  //this->signal_key_press_event().connect(sigc::mem_fun(area, &DArea::KeyPress), false);
+  this->show_all();
 }
 
 bool MyWindow::KeyMotion(GdkEventMotion * event)
 {
-	return true;
+  return true;
 }
 
 bool MyWindow::KeyPress(GdkEventKey * event)
 {
-	return true;
+  return true;
 }

@@ -22,33 +22,36 @@ class DArea : public Gtk::DrawingArea
     std::list<Pt> stroke;
 
     int GetActive();
+    void Spawn();
+    void Kill();
+    bool Animating();
 
-public:
-  DArea();
-  ~DArea();
+  public:
+    DArea();
+    ~DArea();
 
-  void Ready();
+    void Ready();
 
-  void Resize(Gtk::Allocation& alloc);
+    void Resize(Gtk::Allocation& alloc);
 
-  bool threadexit;
+    bool threadexit;
 
-  bool KeyPress(GdkEventKey * event);
-  bool Mouse(GdkEventMotion* motion_event);
-  bool MouseDown(GdkEventButton *event);
-  bool MouseUp(GdkEventButton *event);
-  bool NotifyMouse(int x, int y);
+    bool KeyPress(GdkEventKey * event);
+    bool Mouse(GdkEventMotion* motion_event);
+    bool MouseDown(GdkEventButton *event);
+    bool MouseUp(GdkEventButton *event);
+    bool NotifyMouse(int x, int y);
 
-  void ComputeGame();
+    void ComputeGame();
 
-protected:
-  virtual bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr);
+  protected:
+    virtual bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr);
 
-private:
-//  boost::thread * TimeThread;
-  void TimeLoop();
+  private:
+    //  boost::thread * TimeThread;
+    void TimeLoop();
 
-  void RedrawGame(const Cairo::RefPtr<Cairo::Context>& context);
+    void RedrawGame(const Cairo::RefPtr<Cairo::Context>& context);
 
 };
 

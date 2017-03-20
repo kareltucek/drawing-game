@@ -8,15 +8,21 @@
 static int width = 100;
 static int height = 100;
 static double step = 3.0;
-static double randStep = 0.0;
-static double radius = 20.0;
-static double radiusMinor = 20.0;
-static int samples = 4;
-static int wantLiving = 3;
+static double randStep = 3.0;
+static double radius = 10.0;
+static double radiusMinor = radius/2;
+static int samples = 10;
+static int wantLiving = 4;
+static int maxLiving = 15;
 static int tail = 50;
 static double tailFallOff = 0.1;
 static double minorInvisible = true;
 static double endpointsHidden = false;
+static bool allowDying = true; //if true, objects die by themselves after lifeLength*step
+static double lifeLength = 1000.0; //times mystep - high value - turn dying off
+static bool animationLoop = false; //keeps things in motion via killing and spawning (if allowDying is true)
+static int maxPolyLen = 5;
+static bool curvesOnly = false;
 
 int Rand(int max)
 {
@@ -32,9 +38,9 @@ double Dist(double x, double y, double xx, double yy)
 
 double GetTime()
 {
-	struct timeval tim;
-	gettimeofday(&tim, NULL);
-	return tim.tv_sec+(tim.tv_usec/1000000.0);
+  struct timeval tim;
+  gettimeofday(&tim, NULL);
+  return tim.tv_sec+(tim.tv_usec/1000000.0);
 }
 
 void GetRandPT(double& x, double& y)
@@ -52,22 +58,24 @@ void SetAlpha(const Cairo::RefPtr<Cairo::Context>& context, double alpha)
 
 void GetRandPT(double x, double y, double& xx, double& yy, double mr = 500)
 {
-  int w = Rand(2)*5;
-  int v = 6 - w;
   GetRandPT(xx, yy);
 
-    xx = (w*x + v*xx)/6;
-    yy = (w*y + v*yy)/6;
-  /*
-  MINOP(mr, x);
-  MINOP(mr, y);
-  MINOP(mr, width-x);
-  MINOP(mr, height-y);
-  mr -= radius;
-  if(mr < radius) mr = radius;
+  while(Dist(x, y, xx, yy) > mr)
+  {
+    xx = (x + xx)/2;
+    yy = (y + yy)/2;
+  }
 
-  xx = x + Rand(2*mr) - mr;
-  yy = y + Rand(2*mr) - mr;*/
+  /*
+     MINOP(mr, x);
+     MINOP(mr, y);
+     MINOP(mr, width-x);
+     MINOP(mr, height-y);
+     mr -= radius;
+     if(mr < radius) mr = radius;
+
+     xx = x + Rand(2*mr) - mr;
+     yy = y + Rand(2*mr) - mr;*/
 }
 
 #endif

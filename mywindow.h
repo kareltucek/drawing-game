@@ -4,10 +4,10 @@
 
 class MyWindow : public Gtk::Window
 {
-public:
-	MyWindow();
-	bool KeyPress(GdkEventKey * event);
-	bool Mouse(GdkEventMotion * event);
+  public:
+    MyWindow();
+    bool KeyPress(GdkEventKey * event);
+    bool Mouse(GdkEventMotion * event);
 };
 
 #endif // MYWINDOW_H

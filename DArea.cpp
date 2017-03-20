@@ -12,6 +12,7 @@
 #include "Curve.h"
 #include "Stroke.h"
 #include "Pt.h"
+#include "PolyCurve.h"
 
 DArea::DArea() : objects()
 {
@@ -36,7 +37,7 @@ DArea::DArea() : objects()
 
 DArea::~DArea()
 {
-	threadexit = true;
+  threadexit = true;
 }
 
 bool DArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
@@ -49,17 +50,17 @@ bool DArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 bool DArea::KeyPress(GdkEventKey *event)
 {
   printf("key caught!\n");
-		switch (event->keyval)
-		{
-		case GDK_KEY_plus:
-          step += 0.1;
-			break;
-		case GDK_KEY_minus:
-          step -= 0.1;
-			break;
-		}
-        printf("step is %f\n", step);
-        return true;
+  switch (event->keyval)
+  {
+    case GDK_KEY_plus:
+      step += 0.1;
+      break;
+    case GDK_KEY_minus:
+      step -= 0.1;
+      break;
+  }
+  printf("step is %f\n", step);
+  return true;
 }
 
 bool DArea::MouseDown(GdkEventButton *event)
@@ -110,7 +111,7 @@ bool DArea::Mouse(GdkEventMotion *event)
 
 int DArea::GetActive()
 {
- int cnt = 0; 
+  int cnt = 0; 
   for(std::set<MyObject*>::iterator itr = objects.begin(); itr != objects.end(); itr++)
   {
     if((*itr)->satisfied == false)
@@ -119,49 +120,103 @@ int DArea::GetActive()
   return cnt;
 }
 
+bool DArea::Animating()
+{
+  int cnt = 0; 
+  for(std::set<MyObject*>::iterator itr = objects.begin(); itr != objects.end(); itr++)
+  {
+    if((*itr)->animating())
+      return true;
+  }
+  return false;
+}
+
+void DArea::Spawn()
+{
+  if(GetActive() > maxLiving)
+    return;
+  double time = GetTime();
+  switch(Rand(4))
+  {
+    case 0:
+    case 1:
+      if(!curvesOnly)
+      {
+        objects.insert(new Point(time));
+        break;
+      }
+    case 2:
+      if(!curvesOnly)
+      {
+        objects.insert(new Stroke(time));
+        break;
+      }
+    case 3:
+      static bool g = false;
+      std::vector<Curve*> ptrs = PolyCurve::generate(time, Rand(maxPolyLen));
+      for(Curve* ptr : ptrs)
+      {
+        objects.insert(ptr);
+      }
+      break;
+  }
+  lastGenerated = time;
+}
+
+void DArea::Kill()
+{
+  if(allowDying)
+  {
+    for(std::set<MyObject*>::iterator itr = objects.begin(); itr != objects.end(); itr++)
+    {
+      if(!(*itr)->satisfied)
+      {
+        (*itr)->satisfy();
+        return;
+      }
+    }
+  }
+}
+
 void DArea::ComputeGame()
 {
   double time = GetTime();
 
-  if( GetActive() < wantLiving || time > lastGenerated + 2*step)
+  if( !Animating() && animationLoop)
   {
-    switch(Rand(4))
-    {
-      case 0:
-        objects.insert(new Point(time));
-        break;
-      case 1:
-        objects.insert(new Curve(time));
-      break;
-      case 2:
-        objects.insert(new Point(time));
-      break;
-      case 3:
-        objects.insert(new Stroke(time));
-      break;
-    }
-    lastGenerated += step;
+    if( GetActive() < maxLiving )
+      Spawn();
+    else
+      Kill();
+  }
+
+  if( GetActive() < wantLiving || (GetTime() > lastGenerated + 8 * step))
+  {
+    Spawn();
   }
 
   if(stroke.size() > tail || (GetTime() > lastTailCut + tailFallOff && stroke.size() > 2))
   {
     stroke.pop_back();
-    lastTailCut = GetTime();
+    lastTailCut = time;
   }
 }
 
 void DArea::RedrawGame(const Cairo::RefPtr<Cairo::Context>& context)
 {
+  double time = GetTime();
   Gtk::Allocation allocation = get_allocation();
   width = allocation.get_width();
   height = allocation.get_height();
 
-  static bool g = true;
-  if(g)
-  {
-    g = false;
-    objects.insert(new Curve(lastGenerated + step));
-  }
+  /*
+     static bool g = true;
+     if(g)
+     {
+     g = false;
+     objects.insert(new Curve(lastGenerated + step));
+     }
+     */
 
   context->set_source_rgb(0.0, 0.0, 0.0);
   context->paint();
@@ -170,6 +225,7 @@ void DArea::RedrawGame(const Cairo::RefPtr<Cairo::Context>& context)
 
   for(std::set<MyObject*>::iterator itr = objects.begin(); itr != objects.end(); itr++)
   {
+    (*itr)->update(time);
     (*itr)->draw(context);
   }
   //DrawBackground(context);
@@ -190,38 +246,38 @@ void DArea::RedrawGame(const Cairo::RefPtr<Cairo::Context>& context)
     context->stroke();
   }
 
-      this->ComputeGame();
-      this->queue_draw();
+  this->ComputeGame();
+  this->queue_draw();
 }
 
 /*
-void DArea::DrawDots(double fade, double addmod, bool pulse, const Cairo::RefPtr<Cairo::Context>& context, bool ealpha, int mask)
+   void DArea::DrawDots(double fade, double addmod, bool pulse, const Cairo::RefPtr<Cairo::Context>& context, bool ealpha, int mask)
+   {
+   Gtk::Allocation allocation = get_allocation();
+   int line = GetCalibrationHeight(addmod);
+//context->line_to(allocation.get_width()-5, line);
+//context->stroke();
+double alpha = hfs->fadecol*pow((sin(GetTime()*hfs->pulsemod)+1)/2, 0.25)*fade;
+if(!pulse)
+alpha = fade;
+if(!ealpha)
+context->set_source_rgb(alpha, alpha, alpha);
+else
+context->set_source_rgba(1,1,1,alpha);
+if(mask & 1)
 {
-	Gtk::Allocation allocation = get_allocation();
-	int line = GetCalibrationHeight(addmod);
-	//context->line_to(allocation.get_width()-5, line);
-	//context->stroke();
-	double alpha = hfs->fadecol*pow((sin(GetTime()*hfs->pulsemod)+1)/2, 0.25)*fade;
-	if(!pulse)
-		alpha = fade;
-	if(!ealpha)
-		context->set_source_rgb(alpha, alpha, alpha);
-	else
-		context->set_source_rgba(1,1,1,alpha);
-	if(mask & 1)
-	{
-		context->move_to(5, line);
-		context->arc(5, line, 3, 0, 2*M_PI);
-		context->fill();
-	}
-	if(mask & 2)
-	{
-		context->move_to(allocation.get_width()-7, line);
-		context->arc(allocation.get_width()-7, line, 3, 0, 2*M_PI);
-		context->fill();
-	}
+context->move_to(5, line);
+context->arc(5, line, 3, 0, 2*M_PI);
+context->fill();
+}
+if(mask & 2)
+{
+context->move_to(allocation.get_width()-7, line);
+context->arc(allocation.get_width()-7, line, 3, 0, 2*M_PI);
+context->fill();
+}
 }
 
-    */
+*/
 
 
