@@ -21,7 +21,7 @@ static double endpointsHidden = false;
 static bool allowDying = true; //if true, objects die by themselves after lifeLength*step
 static double lifeLength = 1000.0; //times mystep - high value - turn dying off
 static bool animationLoop = false; //keeps things in motion via killing and spawning (if allowDying is true)
-static int maxPolyLen = 5;
+static int maxPolyLen = 4;
 static bool curvesOnly = false;
 
 int Rand(int max)

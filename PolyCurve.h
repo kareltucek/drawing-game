@@ -19,7 +19,7 @@ class PolyCurve
         //rad = 0; //if we want segment size variation
         std::vector<Pt> direction = last->GetDir();
         //time += last->mystep;
-        last = new Curve(time, direction, rad, i % 2);
+        last = new Curve(time, last->mystep, direction, rad, i % 2);
         ptrs.push_back(last);
       }
       return ptrs;

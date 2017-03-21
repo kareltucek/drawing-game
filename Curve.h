@@ -47,10 +47,11 @@ class Curve : public MyObject
     };
 
   public:
-    Curve(double time, std::vector<Pt> pts = {}, int rad = 0, bool reverse = false) : points()
+
+    Curve(double time, double s = 0, std::vector<Pt> pts = {}, int rad = 0, bool reverse = false) : points()
   {
     reversed = reverse;
-    mystep = step + Rand(randStep);
+    mystep = s == 0 ? step + Rand(randStep) : s;
     born = time;
     satisfied = false;
     dead = false;
@@ -79,7 +80,7 @@ class Curve : public MyObject
     {
       double xx, yy;
       Compute(i*(1.0/(samples - 1.0)), xx, yy);
-      handles.push_back(new Point(time + i*mystep/samples, xx, yy, mystep, !endpointsHidden && i != 0 && i != samples - 1));
+      handles.push_back(new Point(time + i*mystep/samples/2, xx, yy, mystep, !endpointsHidden && i != 0 && i != samples - 1));
     }
     segments = (int)Length()/8;
   };
@@ -103,7 +104,7 @@ class Curve : public MyObject
       res.push_back(points[lastIdx]);
       res.push_back((struct Pt){nx, ny});
       return res;
-    }
+    };
 
     virtual void satisfy()
     {
@@ -114,7 +115,7 @@ class Curve : public MyObject
       satisfied = true;
       dying = GetTime();
       growing = false;
-    }
+    };
 
     virtual void update(double time)
     {

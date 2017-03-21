@@ -153,7 +153,10 @@ void DArea::Spawn()
       }
     case 3:
       static bool g = false;
-      std::vector<Curve*> ptrs = PolyCurve::generate(time, Rand(maxPolyLen));
+      int r1 = Rand(maxPolyLen);
+      int r2 = Rand(maxPolyLen);
+      int deg = MIN(r1, r2);
+      std::vector<Curve*> ptrs = PolyCurve::generate(time, deg);
       for(Curve* ptr : ptrs)
       {
         objects.insert(ptr);
