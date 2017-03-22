@@ -131,6 +131,17 @@ bool DArea::Animating()
   return false;
 }
 
+int DArea::CountDots()
+{
+  int cnt = 0; 
+  for(std::set<MyObject*>::iterator itr = objects.begin(); itr != objects.end(); itr++)
+  {
+    if(dynamic_cast<Point*>(*itr))
+      cnt++;
+  }
+  return cnt;
+}
+
 void DArea::Spawn()
 {
   if(GetActive() > maxLiving)
@@ -196,6 +207,12 @@ void DArea::ComputeGame()
   if( GetActive() < wantLiving || (GetTime() > lastGenerated + 8 * step))
   {
     Spawn();
+  }
+
+  if( CountDots() < 2 )
+  {
+    objects.insert(new Point(time));
+    lastGenerated = time;
   }
 
   if(stroke.size() > tail || (GetTime() > lastTailCut + tailFallOff && stroke.size() > 2))

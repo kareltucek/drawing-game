@@ -25,6 +25,7 @@ class DArea : public Gtk::DrawingArea
     void Spawn();
     void Kill();
     bool Animating();
+    int CountDots();
 
   public:
     DArea();
