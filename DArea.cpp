@@ -136,7 +136,7 @@ int DArea::CountDots()
   int cnt = 0; 
   for(std::set<MyObject*>::iterator itr = objects.begin(); itr != objects.end(); itr++)
   {
-    if(dynamic_cast<Point*>(*itr))
+    if((*itr)->satisfied == false && dynamic_cast<Point*>(*itr))
       cnt++;
   }
   return cnt;
