@@ -79,9 +79,17 @@ bool DArea::MouseUp(GdkEventButton *event)
 
 bool DArea::NotifyMouse(int x, int y)
 {
-  std::vector<MyObject*> rem;
+    static int lastx = x;
+    static int lasty = y;
+
+  if(isDown && Dist(x,y, lastx, lasty) > radius/2)
+  {
+    NotifyMouse((x+lastx)/2, (y+lasty)/2);
+  }
+
   if(isDown)
   {
+  std::vector<MyObject*> rem;
     for(std::set<MyObject*>::iterator itr = objects.begin(); itr != objects.end(); itr++)
     {
       (*itr)->mouse(x, y);
@@ -96,12 +104,14 @@ bool DArea::NotifyMouse(int x, int y)
 
   if(isDown)
   {
-    stroke.push_front((struct Pt){x, y});
+    stroke.push_front((struct Pt){(double)x, (double)y});
     if(stroke.size() > tail)
     {
       stroke.pop_back();
     }
   }
+  lastx = x;
+  lasty = y;
 }
 
 bool DArea::Mouse(GdkEventMotion *event)
