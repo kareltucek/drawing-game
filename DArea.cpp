@@ -196,7 +196,9 @@ void DArea::ComputeGame()
 {
   double time = GetTime();
 
-  if( !Animating() && animationLoop)
+  bool animating = Animating();
+
+  if( !animating && animationLoop)
   {
     if( GetActive() < maxLiving )
       Spawn();
@@ -208,8 +210,7 @@ void DArea::ComputeGame()
   {
     Spawn();
   }
-
-  if( CountDots() < 2 )
+  else if( CountDots() < 3*wantLiving/4 && !animating)
   {
     objects.insert(new Point(time));
     lastGenerated = time;
