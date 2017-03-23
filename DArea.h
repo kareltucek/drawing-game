@@ -27,6 +27,9 @@ class DArea : public Gtk::DrawingArea
     bool Animating();
     int CountDots();
 
+    void ProcessMouse(double x, double y);
+    void Casteljau(double x, double y, double x2, double y2, double x3, double y3);
+
   public:
     DArea();
     ~DArea();

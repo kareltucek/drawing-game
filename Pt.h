@@ -30,7 +30,7 @@ class Point : public MyObject
 
     Point(double time) 
     {
-      myRadius = radius;
+      myRadius = radiusBig;
       mystep = step+Rand(randStep);
       satisfied = false;
       dead = false;

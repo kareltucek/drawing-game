@@ -53,10 +53,10 @@ bool DArea::KeyPress(GdkEventKey *event)
   switch (event->keyval)
   {
     case GDK_KEY_plus:
-      step += 0.1;
+      //step += 0.1;
       break;
     case GDK_KEY_minus:
-      step -= 0.1;
+      //step -= 0.1;
       break;
   }
   printf("step is %f\n", step);
@@ -65,6 +65,7 @@ bool DArea::KeyPress(GdkEventKey *event)
 
 bool DArea::MouseDown(GdkEventButton *event)
 {
+  stroke.clear();
   isDown = true;
   NotifyMouse(event->x, event->y);
   return true;
@@ -73,45 +74,86 @@ bool DArea::MouseDown(GdkEventButton *event)
 bool DArea::MouseUp(GdkEventButton *event)
 {
   isDown = false;
-  stroke.clear();
+  //stroke.clear();
   return true;
 }
 
 bool DArea::NotifyMouse(int x, int y)
 {
-    static int lastx = x;
-    static int lasty = y;
+  static int prevx = x;
+  static int prevy = y;
+  static int lastx = x;
+  static int lasty = y;
+  static bool lastDown = isDown;
+  static int notDown = 0;
 
-  if(isDown && Dist(x,y, lastx, lasty) > radius/2)
+  if(bezierTailInterpolation)
   {
-    NotifyMouse((x+lastx)/2, (y+lasty)/2);
+    if(isDown || lastDown)
+      Casteljau((prevx+lastx)/2, (prevy+lasty)/2, lastx, lasty, (lastx+x)/2, (lasty+y)/2);
   }
-
-  if(isDown)
+  else
   {
-  std::vector<MyObject*> rem;
-    for(std::set<MyObject*>::iterator itr = objects.begin(); itr != objects.end(); itr++)
+    if(isDown)
     {
-      (*itr)->mouse(x, y);
-      if((*itr)->dead)
-        rem.push_back(*itr);
-    }
-    for(std::vector<MyObject*>::iterator itr = rem.begin(); itr != rem.end(); itr++)
-    {
-      objects.erase(*itr);
-    }
-  }
-
-  if(isDown)
-  {
-    stroke.push_front((struct Pt){(double)x, (double)y});
-    if(stroke.size() > tail)
-    {
-      stroke.pop_back();
+      if(Dist(x,y, lastx, lasty) > radius/2)
+        NotifyMouse((lastx + x)/2, (lasty + y)/2);
+      else
+        ProcessMouse(x, y);
     }
   }
+
+  prevx = lastx;
+  prevy = lasty;
   lastx = x;
   lasty = y;
+  lastDown = isDown;
+  if(isDown)
+    notDown = 0;
+  else
+    notDown++;
+  if(notDown > 1)
+    stroke.clear();
+}
+
+void DArea::Casteljau(double x, double y, double x2, double y2, double x3, double y3)
+{
+  if(Dist(x,y, x3, y3) < radius/2)
+  {
+    ProcessMouse((x+x3)/2, (y+y3)/2);
+  }
+  else
+  {
+    double secx = (x+x2)/2;
+    double secy = (y+y2)/2;
+    double fourthx = (x2+x3)/2;
+    double fourthy = (y2+y3)/2;
+    double midx = (secx+fourthx)/2;
+    double midy = (secy+fourthy)/2;
+    Casteljau(x, y, secx, secy, midx, midy);
+    Casteljau(midx, midy, fourthx, fourthy, x3, y3);
+  }
+}
+
+void DArea::ProcessMouse(double x, double y)
+{
+  std::vector<MyObject*> rem;
+  for(std::set<MyObject*>::iterator itr = objects.begin(); itr != objects.end(); itr++)
+  {
+    (*itr)->mouse(x, y);
+    if((*itr)->dead)
+      rem.push_back(*itr);
+  }
+  for(std::vector<MyObject*>::iterator itr = rem.begin(); itr != rem.end(); itr++)
+  {
+    objects.erase(*itr);
+  }
+
+  stroke.push_front((struct Pt){(double)x, (double)y});
+  if(stroke.size() > tail)
+  {
+    stroke.pop_back();
+  }
 }
 
 bool DArea::Mouse(GdkEventMotion *event)
