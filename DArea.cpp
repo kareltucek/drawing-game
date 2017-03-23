@@ -172,6 +172,17 @@ int DArea::GetActive()
   return cnt;
 }
 
+int DArea::GetGrowing()
+{
+  int cnt = 0; 
+  for(std::set<MyObject*>::iterator itr = objects.begin(); itr != objects.end(); itr++)
+  {
+    if((*itr)->satisfied == false && (*itr)->animating())
+      cnt++;
+  }
+  return cnt;
+}
+
 bool DArea::Animating()
 {
   int cnt = 0; 
@@ -246,6 +257,8 @@ void DArea::Kill()
 
 void DArea::ComputeGame()
 {
+  static double spawnNext = GetTime();
+  static bool spawnPlanned = false;
   double time = GetTime();
 
   bool animating = Animating();
@@ -258,19 +271,43 @@ void DArea::ComputeGame()
       Kill();
   }
 
-  if( GetActive() < wantLiving || (GetTime() > lastGenerated + 8 * step))
+  if(spawnNext < time)
   {
     Spawn();
+    spawnNext = lastGenerated + 8 * step;
+    spawnPlanned = false;
   }
-  else if( CountDots() < 3*wantLiving/4 && !animating)
+
+  int active = GetActive();
+  int dotCount = CountDots();
+  bool growing = GetGrowing();
+  if( active < wantLiving/2 || (active < wantLiving && !growing))
+  {
+    if(!spawnPlanned)
+    {
+      spawnPlanned = true;
+      double delay = spawnDelayVariation*0.001*Rand(1000);
+      MINOP(spawnNext, time+delay);
+    }
+  }
+  if( dotCount < 3*wantLiving/4 && !growing)
+  {
+    objects.insert(new Point(time));
+    lastGenerated = time;
+  }
+  else if( dotCount < wantLiving/3 )
   {
     objects.insert(new Point(time));
     lastGenerated = time;
   }
 
-  if(stroke.size() > tail || (GetTime() > lastTailCut + tailFallOff && stroke.size() > 2))
+  static double strokeDelBuffer = 0;
+  int strokeLen = 10 < stroke.size() ? stroke.size() : 10;
+  if(stroke.size() > tail || (GetTime() > lastTailCut + 1.0/strokeLen && stroke.size() > 1))
   {
-    stroke.pop_back();
+    
+    for(strokeDelBuffer += stroke.size()/30+1; strokeDelBuffer > 1.0; strokeDelBuffer -= 1)
+      stroke.pop_back();
     lastTailCut = time;
   }
 }
