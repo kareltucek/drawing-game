@@ -65,7 +65,7 @@ bool DArea::KeyPress(GdkEventKey *event)
 
 bool DArea::MouseDown(GdkEventButton *event)
 {
-  stroke.clear();
+  tail.clear();
   isDown = true;
   NotifyMouse(event->x, event->y);
   return true;
@@ -74,7 +74,7 @@ bool DArea::MouseDown(GdkEventButton *event)
 bool DArea::MouseUp(GdkEventButton *event)
 {
   isDown = false;
-  //stroke.clear();
+  //tail.clear();
   return true;
 }
 
@@ -113,7 +113,7 @@ bool DArea::NotifyMouse(int x, int y)
   else
     notDown++;
   if(notDown > 1)
-    stroke.clear();
+    tail.clear();
 }
 
 void DArea::Casteljau(double x, double y, double x2, double y2, double x3, double y3)
@@ -149,10 +149,10 @@ void DArea::ProcessMouse(double x, double y)
     objects.erase(*itr);
   }
 
-  stroke.push_front((struct Pt){(double)x, (double)y});
-  if(stroke.size() > tail)
+  tail.push_front((struct Pt){(double)x, (double)y});
+  if(tail.size() > maxTailLen)
   {
-    stroke.pop_back();
+    tail.pop_back();
   }
 }
 
@@ -301,13 +301,13 @@ void DArea::ComputeGame()
     lastGenerated = time;
   }
 
-  static double strokeDelBuffer = 0;
-  int strokeLen = 10 < stroke.size() ? stroke.size() : 10;
-  if(stroke.size() > tail || (GetTime() > lastTailCut + 1.0/strokeLen && stroke.size() > 1))
+  static double tailDelBuffer = 0;
+  int tailLen = 10 < tail.size() ? tail.size() : 10;
+  if(tail.size() > maxTailLen || (GetTime() > lastTailCut + 1.0/tailLen && tail.size() > 1))
   {
     
-    for(strokeDelBuffer += stroke.size()/30+1; strokeDelBuffer > 1.0; strokeDelBuffer -= 1)
-      stroke.pop_back();
+    for(tailDelBuffer += tail.size()/30+1; tailDelBuffer > 1.0; tailDelBuffer -= 1)
+      tail.pop_back();
     lastTailCut = time;
   }
 }
@@ -344,11 +344,11 @@ void DArea::RedrawGame(const Cairo::RefPtr<Cairo::Context>& context)
 
   context->stroke();
 
-  if(!stroke.empty())
+  if(!tail.empty())
   {
-    Pt pt = *stroke.begin();
+    Pt pt = *tail.begin();
     context->move_to(pt.x, pt.y);
-    for(std::list<Pt>::iterator itr = stroke.begin(); itr != stroke.end(); itr++)
+    for(std::list<Pt>::iterator itr = tail.begin(); itr != tail.end(); itr++)
     {
       pt = (*itr);
       context->line_to(pt.x, pt.y);

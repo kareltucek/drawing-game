@@ -19,7 +19,7 @@ class DArea : public Gtk::DrawingArea
     int objId;
     std::set<MyObject*> objects;
 
-    std::list<Pt> stroke;
+    std::list<Pt> tail;
 
     int GetActive();
     void Spawn();
