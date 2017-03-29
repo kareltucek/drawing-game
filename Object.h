@@ -11,10 +11,10 @@ class MyObject
     bool dead;
     bool growing;
 
-    virtual void satisfy(){};
+    virtual bool satisfy(){};
     virtual bool animating(){ return (satisfied && !dead) || growing; };
     virtual void update(double time){};
-    virtual void mouse(int x, int y){};
+    virtual bool mouse(int x, int y){ return false; };
     virtual void draw(const Cairo::RefPtr<Cairo::Context>& context){};
 };
 

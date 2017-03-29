@@ -11,11 +11,11 @@ static const double step = 3.0;
 static const double randStep = 3.0;
 static const double radiusBig = 10.0;
 static const double radiusMinor = radiusBig/2;
-static const double radius = radiusBig * 1.5;
+static const double radius = radiusBig ; //actual sensitivity radius
 static const int samples = 10;
 static const int wantLiving = 8;
 static const int maxLiving = 15;
-static const int tail = 500;
+static const int maxTailLen = 500;
 //static const double tailFallOff = 0.1; //computed implicitly as 1/num
 static const double minorInvisible = true;
 static const double endpointsHidden = false;
@@ -26,6 +26,7 @@ static const int maxPolyLen = 4;
 static const bool curvesOnly = false;
 static const bool bezierTailInterpolation = true;
 static const double spawnDelayVariation = 1.0;
+static const bool regrowFailed = true;
 
 int Rand(int max)
 {
@@ -85,6 +86,13 @@ void GetRandPT(double x, double y, double& xx, double& yy, double mr = 500)
 
      xx = x + Rand(2*mr) - mr;
      yy = y + Rand(2*mr) - mr;*/
+}
+
+void GetRandDir(double x, double y, double& xx, double& yy, double mr = 20)
+{
+  GetRandPT(x, y, xx, yy, mr);
+  xx -= x;
+  yy -= y;
 }
 
 #endif

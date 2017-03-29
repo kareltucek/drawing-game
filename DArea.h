@@ -28,6 +28,8 @@ class DArea : public Gtk::DrawingArea
     int GetGrowing();
     int CountDots();
 
+    void Register(const std::vector<MyObject*>&);
+
     void ProcessMouse(double x, double y);
     void Casteljau(double x, double y, double x2, double y2, double x3, double y3);
 

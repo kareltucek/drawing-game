@@ -56,20 +56,31 @@ class Point : public MyObject
       y = yy;
     };
 
-    virtual void satisfy()
+    void reset(double time)
+    {
+      satisfied = false;
+      dead = false;
+      if(dead || time > dying + mystep)
+        born = time;
+      else
+        born = time - (mystep - (time - dying));
+    };
+
+    virtual bool satisfy()
     {
       if(satisfied)
-        return;
+        return false;
       this->satisfied = true;
       growing = false;
       dying = GetTime();
+      return true;
     };
 
-    virtual void mouse(int xx, int yy)
+    virtual bool mouse(int xx, int yy)
     {
       if(Dist(x, y, xx, yy) < radius && !satisfied)
       {
-        satisfy();
+        return satisfy();
       }
     };
 

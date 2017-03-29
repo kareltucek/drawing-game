@@ -3,13 +3,14 @@
 
 #include <vector>
 #include "Curve.h"
+#include "Object.h"
 
 class PolyCurve 
 {
   public:
-    static std::vector<Curve*> generate(double time, int num)
+    static std::vector<MyObject*> generate(double time, int num)
     {
-      std::vector<Curve*> ptrs;
+      std::vector<MyObject*> ptrs;
       Curve* last = new Curve(time);
       ptrs.push_back(last);
       double lastTime = time;

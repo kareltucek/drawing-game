@@ -13,6 +13,7 @@
 #include "Stroke.h"
 #include "Pt.h"
 #include "PolyCurve.h"
+#include "Field.h"
 
 DArea::DArea() : objects()
 {
@@ -205,12 +206,18 @@ int DArea::CountDots()
   return cnt;
 }
 
+void DArea::Register(const std::vector<MyObject*>& pts)
+{
+  for(MyObject* ptr : pts)
+    objects.insert(ptr);
+}
+
 void DArea::Spawn()
 {
   if(GetActive() > maxLiving)
     return;
   double time = GetTime();
-  switch(Rand(4))
+  switch(Rand(5))
   {
     case 0:
     case 1:
@@ -226,15 +233,14 @@ void DArea::Spawn()
         break;
       }
     case 3:
+      Register(Field::generate(time, 4+Rand(10)));
+      break;
+    case 4:
       static bool g = false;
       int r1 = Rand(maxPolyLen);
       int r2 = Rand(maxPolyLen);
       int deg = MIN(r1, r2);
-      std::vector<Curve*> ptrs = PolyCurve::generate(time, deg);
-      for(Curve* ptr : ptrs)
-      {
-        objects.insert(ptr);
-      }
+      Register(PolyCurve::generate(time, deg));
       break;
   }
   lastGenerated = time;

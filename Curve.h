@@ -106,15 +106,16 @@ class Curve : public MyObject
       return res;
     };
 
-    virtual void satisfy()
+    virtual bool satisfy()
     {
       if(satisfied)
-        return;
+        return false;
       for(int i = 0; i < samples; i++)
         handles[i]->satisfy();
       satisfied = true;
       dying = GetTime();
       growing = false;
+      return true;
     };
 
     virtual void update(double time)
@@ -125,10 +126,10 @@ class Curve : public MyObject
       }
     };
 
-    virtual void mouse(int x, int y)
+    virtual bool mouse(int x, int y)
     {
       if(satisfied)
-        return;
+        return false;
       bool unsatisfied = false;
       for(int i = 0; i < samples; i++)
       {
@@ -140,7 +141,9 @@ class Curve : public MyObject
         satisfied = true;
         growing = false;
         dying = GetTime();
+        return true;
       }
+      return false;
     };
 
     void drawCurve(const Cairo::RefPtr<Cairo::Context>& context, double begin, double end, double segments)
