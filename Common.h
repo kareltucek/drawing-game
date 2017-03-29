@@ -27,6 +27,7 @@ static const bool curvesOnly = false;
 static const bool bezierTailInterpolation = true;
 static const double spawnDelayVariation = 1.0;
 static const bool regrowFailed = true;
+static const double strokeLimit = 0.5;
 
 int Rand(int max)
 {

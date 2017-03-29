@@ -11,6 +11,7 @@ class Field
     static std::vector<MyObject*> generate(double time, int num)
     {
       std::vector<MyObject*> ptrs;
+      double s = step+Rand(randStep);
       double x, y;
       double xx, yy;
       double xd, yd;
@@ -19,7 +20,7 @@ class Field
       GetRandDir(x, y, xd, yd, 20);
       for(int i = 0; i < num; i++)
       {
-        MyObject* last = new Stroke(time + step/num*i, step/2, x + xd*i, y + yd*i, xx + xd*i, yy + yd*i);
+        MyObject* last = new Stroke(time + s/num*i, s/2, x + xd*i, y + yd*i, xx + xd*i, yy + yd*i);
         ptrs.push_back(last);
       }
       return ptrs;

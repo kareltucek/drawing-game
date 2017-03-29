@@ -34,7 +34,7 @@ class Stroke : public MyObject
         GetRandPT(x1, y1, x2, y2);
       p2 = Point(time, x2, y2, mystep, endpointsHidden);
 
-      born = GetTime();
+      born = time;
       satisfied = false;
       dead = false;
       growing = true;
@@ -58,7 +58,7 @@ class Stroke : public MyObject
       {
         satisfy();
       }
-      if(((p1.satisfied && !p2.satisfied) || (!p1.satisfied && p2.satisfied)) && time > lastActivity + 1.0)
+      if(((p1.satisfied && !p2.satisfied) || (!p1.satisfied && p2.satisfied)) && time > lastActivity + strokeLimit)
       {
         if(p1.satisfied)
           p1.reset(time);
